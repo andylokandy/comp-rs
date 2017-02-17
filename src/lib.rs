@@ -7,15 +7,27 @@ macro_rules! option {
     };
 
     (
+        let mut $p: tt <- $e: expr ; $( $t: tt )*
+    ) => (
+        $e.and_then(move | mut $p | { option! { $( $t )* } } )
+    );
+
+    (
+        let mut $p: ident : $ty: tt <- $e: expr ; $( $t: tt )*
+    ) => (
+        $e.and_then(move | mut $p : $ty | { option! { $( $t )* } } )
+    );
+
+    (
         let $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
         $e.and_then(move | $p | { option! { $( $t )* } } )
     );
 
     (
-        let $p: tt ( $( $para: tt ),* ) <- $e: expr ; $( $t: tt )*
+        let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p ( $( $para ),* ) | { option! { $( $t )* } } )
+        $e.and_then(move | $p ( $( $para )* ) | { option! { $( $t )* } } )
     );
 
     (
@@ -72,15 +84,27 @@ macro_rules! result {
     };
 
     (
+        let mut $p: tt <- $e: expr ; $( $t: tt )*
+    ) => (
+        $e.and_then(move | mut $p | { result! { $( $t )* } } )
+    );
+
+    (
+        let mut $p: ident : $ty: tt <- $e: expr ; $( $t: tt )*
+    ) => (
+        $e.and_then(move | mut $p : $ty | { result! { $( $t )* } } )
+    );
+
+    (
         let $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
         $e.and_then(move | $p | { result! { $( $t )* } } )
     );
 
     (
-        let $p: tt ( $( $para: tt ),* ) <- $e: expr ; $( $t: tt )*
+        let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p ( $( $para ),* ) | { result! { $( $t )* } } )
+        $e.and_then(move | $p ( $( $para )* ) | { result! { $( $t )* } } )
     );
 
     (
@@ -133,18 +157,6 @@ macro_rules! iter {
     );
 
     (
-        let mut $p: tt ( $( $para: tt ),* ) <- $e: expr ; $( $t: tt )*
-    ) => (
-        $e.into_iter().flat_map(move | mut $p ( $( $para ),* ) | { iter! { $( $t )* } } )
-    );
-
-    (
-        let mut $p: tt { $( $para: tt )* } <- $e: expr; $( $t: tt )*
-    ) => (
-        $e.into_iter().flat_map(move | mut $p { $( $para )* } | { iter! { $( $t )* } } )
-    );
-
-    (
         let mut $p: ident : $ty: tt <- $e: expr ; $( $t: tt )*
     ) => (
         $e.into_iter().flat_map(move | mut $p : $ty | { iter! { $( $t )* } } )
@@ -157,9 +169,9 @@ macro_rules! iter {
     );
 
     (
-        let $p: tt ( $( $para: tt ),* ) <- $e: expr ; $( $t: tt )*
+        let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.into_iter().flat_map(move | $p ( $( $para ),* ) | { iter! { $( $t )* } } )
+        $e.into_iter().flat_map(move | $p ( $( $para )* ) | { iter! { $( $t )* } } )
     );
 
     (
@@ -477,41 +489,65 @@ mod tests {
         assert!(iter.eq(expected.into_iter()));
     }
 
-    // #[test]
-    // fn test_mut() {
-    //     let option = option! {
-    //         let mut a <- Some(2);
-    //         a = a + 10;
-    //         a
-    //     };
-    //     assert_eq!(option, Some(12));
-    //
-    //     let result = result! {
-    //         let mut a <- Ok(2);
-    //         a = a + 10;
-    //         a
-    //     };
-    //     assert_eq!(result, Ok(12));
-    //
-    //     let iter = iter! {
-    //         let mut a <- 2..3;
-    //         a = a + 10;
-    //         a
-    //     };
-    //     let expected = vec![12];
-    //     assert!(iter.eq(expected.into_iter()));
-    // }
+    #[test]
+    fn test_mut() {
+        struct TupleStruct2(usize, usize);
 
-    // #[test]
-    // fn test_comments() {
-    //     apply! {
-    //         // single line comments
-    //         let a <- Some(1);
-    //
-    //         /*
-    //          * block comments
-    //          */
-    //         let b <- Some(2);
-    //     }
-    // }
+        let option = option! {
+            let mut a <- Some(2);
+            a = a + 10;
+
+            let (mut b,) <- Some((3,));
+            b = b + 10;
+
+            (a, b)
+        };
+        assert_eq!(option, Some((12, 13)));
+
+        let result = result! {
+            let mut a <- ok(2);
+            a = a + 10;
+
+            let TupleStruct2(mut b, _) <- ok(TupleStruct2(3, 4));
+            b = b + 10;
+
+            (a, b)
+        };
+        assert_eq!(result, ok((12, 13)));
+
+        let iter = iter! {
+            let mut a <- 2..3;
+            a = a + 10;
+            a
+        };
+        let expected = vec![12];
+        assert!(iter.eq(expected.into_iter()));
+    }
+
+    #[test]
+    fn test_comments() {
+        option! {
+            // single line comments
+            let a <- Some(1);
+
+            /*
+             * block comments
+             */
+            let b <- Some(2);
+        };
+    }
+
+    #[test]
+    fn test_nested() {
+        let iter = iter! {
+            let a <- 0..2;
+
+            option! {
+                let b <- Some(a);
+                (b,)
+            }
+        };
+        let expected = vec![Some((0,)), Some((1,))];
+        assert!(iter.eq(expected.into_iter()));
+    }
 }
