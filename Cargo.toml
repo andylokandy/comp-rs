@@ -1,6 +1,6 @@
 [package]
-name = "future-notation"
-version = "0.1.0"
+name = "comp"
+version = "0.1.2"
 authors = ["andylokandy <andylokandy@hotmail.com>"]
 
 [dependencies]

@@ -1,4 +1,4 @@
-// extern crate futures;
+#![cfg_attr(not(test), no_std)]
 
 #[macro_exports]
 macro_rules! option {
@@ -43,16 +43,6 @@ macro_rules! option {
     );
 
     (
-        if $e: expr ; $( $t: tt )*
-    ) => (
-        if $e {
-            iter! { $( $t )* }
-        } else {
-            None
-        }
-    );
-
-    (
         $stmt: stmt ; $( $t: tt )*
     ) => (
         { $stmt ; option! { $( $t )* } }
@@ -61,7 +51,7 @@ macro_rules! option {
     (
         $e: expr ; $( $t: tt )*
     ) => (
-        $e ; option! { $( $t )* }
+        { $e ; option! { $( $t )* } }
     );
 
     (
@@ -128,7 +118,7 @@ macro_rules! result {
     (
         $e: expr ; $( $t: tt )*
     ) => (
-        $e ; result! { $( $t )* }
+        { $e ; result! { $( $t )* } }
     );
 
     (
@@ -201,7 +191,7 @@ macro_rules! iter {
     (
         $e: expr ; $( $t: tt )*
     ) => (
-        $e ; iter! { $( $t )* }
+        { $e ; iter! { $( $t )* } }
     );
 
     (
@@ -222,16 +212,8 @@ mod tests {
     #![allow(unused_variables)]
     #![allow(dead_code)]
 
-    fn none() -> Option<()> {
-        None
-    }
-
     fn ok<T>(t: T) -> Result<T, ()> {
         Ok(t)
-    }
-
-    fn err() -> Result<(), ()> {
-        Err(())
     }
 
     #[test]
@@ -276,6 +258,20 @@ mod tests {
         };
         assert_eq!(result, Ok((1, 'a')));
 
+        let result = result! {
+            let a <- Err::<(), _>(1);
+            let b <- Ok('a');
+            (a, b)
+        };
+        assert_eq!(result, Err(1));
+
+        let result = result! {
+            let a <- Ok('a');
+            let b <- Err::<(), _>(2);
+            (a, b)
+        };
+        assert_eq!(result, Err(2));
+
         let iter = iter! {
             let x <- 0..4;
             let y <- x..4;
@@ -288,22 +284,6 @@ mod tests {
 
     #[test]
     fn test_guard() {
-        let option = option! {
-            let a <- Some(1);
-            let b <- Some(2);
-            if a == b;
-            (a, b)
-        };
-        assert_eq!(option, None);
-
-        let option = option! {
-            let a <- Some(1);
-            let b <- Some(2);
-            if a != b;
-            (a, b)
-        };
-        assert_eq!(option, Some((1, 2)));
-
         let iter = iter! {
             let x <- 0..4;
             let y <- x..4;
