@@ -273,9 +273,22 @@ mod tests {
         assert_eq!(result, Err(2));
 
         let iter = iter! {
-            let x <- 0..4;
+            let x <- vec![0, 1, 2, 3];
             let y <- x..4;
             (x, y)
+        };
+        let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 2),
+                            (2, 3), (3, 3)];
+        assert!(iter.eq(expected.into_iter()));
+    }
+
+    #[test]
+    fn test_array() {
+        let array = [0, 1, 2, 3];
+        let iter = iter! {
+            let x <- array;
+            let y <- *x..4;
+            (*x, y)
         };
         let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 2),
                             (2, 3), (3, 3)];
