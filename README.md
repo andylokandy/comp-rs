@@ -5,7 +5,7 @@ Pure-macro Do notation and List-comprehension for Option, Result and Iterator.
 It provides syntax extensions separately for the three types above, which look like
 `for-comprehension` in scala or `Do notation` in haskell.
 
-### [**Documentation**](https://goandylok.github.io/arraydeque/doc/arraydeque/index.html)
+### [**Documentation**](https://goandylok.github.io/comp-rs/doc/comp/index.html)
 
 ## Usage
 

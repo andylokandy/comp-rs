@@ -7,5 +7,6 @@ license = "MIT/Apache-2.0"
 description = "Pure-macro Do notation and List-comprehension for Option, Result and Iterator."
 repository = "https://github.com/goandylok/comp-rs"
 homepage = "https://github.com/goandylok/comp-rs"
+documentation = "https://goandylok.github.io/comp-rs/doc/comp/index.html"
 
 keywords = ["macro", "comprehension", "haskell", "mdo", "no_std"]
