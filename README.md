@@ -1,5 +1,9 @@
 # `comp-rs`
 
+[![Build Status](https://travis-ci.org/goandylok/comp-rs.svg?branch=master)](https://travis-ci.org/goandylok/comp-rs)
+[![crates.io](https://img.shields.io/crates/v/comp.svg)](https://crates.io/crates/comp)
+[![docs.rs](https://docs.rs/comp/badge.svg)](https://docs.rs/comp)
+
 Pure-macro Do notation and List-comprehension for Option, Result and Iterator.
 
 It provides syntax extensions separately for the three types above, which look like
