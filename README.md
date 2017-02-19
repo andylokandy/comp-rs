@@ -2,6 +2,9 @@
 
 Pure-macro Do notation and List-comprehension for Option, Result and Iterator.
 
+It provides syntax extensions separately for the three types above, which look like
+`for-comprehension` in scala or `Do notation` in haskell.
+
 ### [**Documentation**](https://goandylok.github.io/arraydeque/doc/arraydeque/index.html)
 
 ## Usage
@@ -23,7 +26,7 @@ extern crate comp;
 ## Example
 
 `comp-rs` delivers three macros : *`option!`*, *`result!`* and *`iter!`*,
-which work in similar way.
+transforming the `arrow(<-)` statements into FP binding( *`flat_map()`* ).
 
 ### Iterator
 
@@ -46,6 +49,9 @@ for x in iter {
 
 ### Option
 ```rust
+#[macro_use]
+extern crate comp;
+
 let option = option! {
   let a <- Some(1);
   let b <- Some(2);
@@ -57,9 +63,9 @@ assert_eq!(option, Some(3));
 
 ### Result
 
-Unlike `Iterator` and `Option`, rust provided __*Question Mark*__ syntax to combine `Result`s.
+Unlike `Iterator` and `Option`, rust provides __*Question Mark*__ syntax to combine `Result`s.
 
-Let's see how `comp-rs` make it more explicit and expressive.
+Let's see how `comp-rs` makes it more explicit and expressive.
 
 #### Native way
 
@@ -93,6 +99,9 @@ let content: Result<String> = {
 #### `comp-rs` way
 
 ```rust
+#[macro_use]
+extern crate comp;
+
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -106,8 +115,19 @@ let content: Result<String> = result! {
 
 ## Syntax
 
-All of three macros always return wrapped type(`Option<T>`, `Result<T>` and
+All three macros return wrapped type(`Option<T>`, `Result<T>` and
   `Iterator<Item=T>`), and yield the last expression.
+
+Syntax: `(sentence)* ; expression`
+
+sentence can be:
+* `let pattern <- expression;`: bind expression to pattern.
+* `if filter_expression;`: filter by condition, and jump over when not satisfied.
+* `statement;`: let assignment, value assignment, etc.
+* `{...}`: block and unsafe block.
+
+
+## Syntax Detail
 
 ### 1. Basic arrow(<-) syntax
 
@@ -191,7 +211,7 @@ let iter = iter! {
 }
 ```
 
-The block yields `()` While the last line is __*arrow statement*__ or statement
+The block yields `()` while the last line is __*arrow statement*__ or statement
 with __*semicolon*__.
 
 ```rust
@@ -209,7 +229,7 @@ let option: Option<()> = option! {
 
 ### 3. Pattern
 
-In `comp-rs` pattern is supported as it should be.
+In `comp-rs`, pattern is supported as it should be.
 
 #### Tuple
 
@@ -247,9 +267,9 @@ let option = option! {
 
 ### 4. If-Guard
 
-If-Guard is specific for `iter!` which translate condition into `filter()`.
+If-Guard is specific for `iter!` which translates condition into `filter()`.
 
-It wrap the following code into a block and call `filter()` on it.
+It wraps the following code into a block and call `filter()` on it.
 
 ```rust
 let iter = iter! {
@@ -258,6 +278,7 @@ let iter = iter! {
 
   if x == y;
 
+  // won't reach here if condition isn't satisfied
   (x, y)
 };
 
@@ -309,11 +330,11 @@ assert!(iter.eq(expected.into_iter()));
 
 ### Array
 
-`Array` in rust behaves various from other collections. It only iterates its
+`Array` in rust behaves differently from other collections. It only iterates its
 content by reference.
-So `iter!` always bind *references* by `arrow(<-)` syntax, then you need to
-*deref* the binded value.
-And since one can't move any value out of an `array`, array should be place
+So `iter!` always binds *references* in `arrow(<-)` syntax, then you need to
+*deref* the bound value.
+And since one can't move any value out of an `array`, array should be placed
 outside the macro to satisfy lifetime.
 
 ```rust
@@ -330,10 +351,10 @@ assert!(expected, iter.collect::<Vec<_>>());
 
 ## Contribution
 
-All kinds of contribution are welcomed.
+All kinds of contribution are welcome.
 
-- **Issus.** Feel free to open an issue when you find typos, bugs, or have any question.
-- **Pull requests**. New collection, better implementation, more tests, more documents and typo fixes are all welcomed.
+- **Issue** Feel free to open an issue when you find typos, bugs, or have any question.
+- **Pull requests**. Better implementation, more tests, more documents and typo fixes are all welcome.
 
 ## License
 

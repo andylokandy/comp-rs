@@ -2,6 +2,3 @@
 name = "comp"
 version = "0.1.2"
 authors = ["andylokandy <andylokandy@hotmail.com>"]
-
-[dependencies]
-futures = "*"
