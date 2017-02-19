@@ -1,4 +1,11 @@
 [package]
 name = "comp"
 version = "0.1.2"
-authors = ["andylokandy <andylokandy@hotmail.com>"]
+authors = ["goandylok"]
+license = "MIT/Apache-2.0"
+
+description = "Pure-macro Do notation and List-comprehension for Option, Result and Iterator."
+repository = "https://github.com/goandylok/comp-rs"
+homepage = "https://github.com/goandylok/comp-rs"
+
+keywords = ["macro", "comprehension", "haskell", "mdo", "no_std"]
