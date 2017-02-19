@@ -26,7 +26,7 @@ extern crate comp;
 ## Example
 
 `comp-rs` delivers three macros : *`option!`*, *`result!`* and *`iter!`*,
-transforming the `arrow(<-)` statements into FP binding( *`flat_map()`* ).
+transforming the `arrow(<-)` statements into FP bind (`flat_map`).
 
 ### Iterator
 
