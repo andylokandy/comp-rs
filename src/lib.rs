@@ -2,10 +2,10 @@
 
 //! Pure-macro Do notation and List-comprehension for Option, Result and Iterator.
 //!
-//! It provides syntax extensions separately for the three types above, which look like
-//! `for-comprehension` in scala or `Do notation` in haskell.
+//! It provides syntax extensions to easily combind wrapper type (`Option`, `Result` and `Iterator`), 
+//! which seems like `for-comprehension` in scala or `Do notation` in haskell.
 //!
-//! ## Usage
+//! # Usage
 //!
 //! First, add the following to your `Cargo.toml`:
 //!
@@ -16,40 +16,44 @@
 //!
 //! Next, add this to your crate root:
 //!
-//! ```rust,ignore
+//! ```
 //! #[macro_use]
 //! extern crate comp;
+//! # fn main() {}
 //! ```
 //!
-//! ## Example
+//! # Example
 //!
 //! `comp-rs` delivers three macros : *`option!`*, *`result!`* and *`iter!`*,
 //! transforming the `arrow(<-)` statements into FP binding( *`flat_map()`* ).
 //!
-//! ### Iterator
+//! ## Iterator
 //!
-//! ```rust,ignore
+//! ```
 //! #[macro_use]
 //! extern crate comp;
 //!
+//! # fn main() {
 //! let iter = iter! {
-//!   let x <- 0..2;
+//!   let x <- 0..2u8;
 //!   let y <- vec!['a', 'b'];
 //!   (x, y)
-//! }
+//! };
 //!
 //! for x in iter {
-//!   println!("{}", x);
+//!   println!("{:?}", x);
 //! }
 //!
 //! // Print (0, 'a') (0, 'b') (1, 'a') (1, 'b')
+//! # }
 //! ```
 //!
-//! ### Option
-//! ```rust,ignore
+//! ## Option
+//! ```
 //! #[macro_use]
 //! extern crate comp;
 //!
+//! # fn main() {
 //! let option = option! {
 //!   let a <- Some(1);
 //!   let b <- Some(2);
@@ -57,61 +61,72 @@
 //! };
 //!
 //! assert_eq!(option, Some(3));
+//! # }
 //! ```
 //!
-//! ### Result
+//! ## Result
 //!
 //! Unlike `Iterator` and `Option`, rust provides __*Question Mark*__ syntax to combine `Result`s.
 //!
 //! Let's see how `comp-rs` makes it more explicit and expressive.
 //!
-//! #### Native way
+//! **Native way**
 //!
-//! ```rust,ignore
+//! ```no_run
 //! use std::fs::File;
+//! use std::io;
 //! use std::io::prelude::*;
 //!
-//! let content: Result<String> = {
-//!   let mut f = try!(File::open("foo.txt"));
-//!   let mut s = String::new();
-//!   try!(f.read_to_string(&mut s));
-//!   s
-//! };
-//!
+//! # fn main() {
+//! // try!() macro must be wrap into a function
+//! fn content() -> io::Result<String> {
+//!     let mut f = try!(File::open("foo.txt"));
+//!     let mut s = String::new();
+//!     try!(f.read_to_string(&mut s));
+//!     Ok(s)
+//! }
+//! # }
 //! ```
 //!
-//! #### Question mark
+//! **Question mark**
 //!
-//! ```rust,ignore
+//! ```no_run
 //! use std::fs::File;
+//! use std::io;
 //! use std::io::prelude::*;
 //!
-//! let content: Result<String> = {
-//!   let mut f = File::open("foo.txt")?;
-//!   let mut s = String::new();
-//!   f.read_to_string(&mut s)?;
-//!   s
-//! };
+//! # fn main() {
+//! // '?' mark must be wrap into a function
+//! fn content() -> io::Result<String> {
+//!     let mut f = File::open("foo.txt")?;
+//!     let mut s = String::new();
+//!     f.read_to_string(&mut s)?;
+//!     Ok(s)
+//! }
+//! # }
 //! ```
 //!
-//! #### `comp-rs` way
+//! **`result!` way**
 //!
-//! ```rust,ignore
-//! #[macro_use]
-//! extern crate comp;
-//!
+//! ```no_run
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
 //! use std::fs::File;
+//! use std::io;
 //! use std::io::prelude::*;
 //!
-//! let content: Result<String> = result! {
+//! # fn main() {
+//! let content: io::Result<String> = result! {
 //!   let mut f <- File::open("foo.txt");
 //!   let mut s = String::new();
-//!   let size <- f.read_to_string(&mut s);
+//!   let _ <- f.read_to_string(&mut s);
 //!   s
 //! };
+//! # }
 //! ```
 //!
-//! ## Syntax
+//! # Syntax
 //!
 //! All three macros return wrapped type(`Option<T>`, `Result<T>` and
 //!   `Iterator<Item=T>`), and yield the last expression.
@@ -119,17 +134,20 @@
 //! Syntax: `(sentence)* ; expression`
 //!
 //! sentence can be:
+
 //! * `let pattern <- expression;`: bind expression to pattern.
+//!
 //! * `if filter_expression;`: filter by condition, and jump over when not satisfied.
+//!
 //! * `statement;`: let assignment, value assignment, etc.
+//!
 //! * `{...}`: block and unsafe block.
 //!
+//! # Syntax Detail
 //!
-//! ## Syntax Detail
+//! ## 1. Basic arrow(<-) syntax
 //!
-//! ### 1. Basic arrow(<-) syntax
-//!
-//! #### Rules
+//! ## Rules
 //!
 //! ```rust,ignore
 //! Macro                      Expand
@@ -158,9 +176,13 @@
 //! Some(1).and_then(move |mut x| option!{ x })
 //! ```
 //!
-//! #### Example
+//! ## Example
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let option = option! {
 //!   let a <- Some(1);
 //!   let b <- Some(2);
@@ -176,14 +198,19 @@
 //!     })
 //!   })
 //! };
+//! # }
 //! ```
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let iter = iter! {
 //!   let x <- 0..2;
 //!   let y <- vec!['a', 'b'];
 //!   (x, y)
-//! }
+//! };
 //!
 //! // code above is expanded roughly into this
 //!
@@ -194,25 +221,35 @@
 //!     })
 //!   })
 //! };
+//! # }
 //! ```
 //!
-//! ### 2. Yield
+//! ## 2. Yield
 //!
 //! The last expression of the block will be yielded, similar to functions in rust.
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let iter = iter! {
 //!   let x <- 0..2;
 //!   let y <- vec!['a', 'b'];
 //!
 //!   (x, y)    // <------- Yield
-//! }
+//! };
+//! # }
 //! ```
 //!
 //! The block yields `()` while the last line is __*arrow statement*__ or statement
 //! with __*semicolon*__.
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let option: Option<()> = option! {
 //!   let a <- Some(1);
 //!   let b <- Some(2);
@@ -223,26 +260,36 @@
 //!   let b <- Some(2);
 //!   a + b;
 //! };
+//! # }
 //! ```
 //!
-//! ### 3. Pattern
+//! ## 3. Pattern
 //!
 //! In `comp-rs`, pattern is supported as it should be.
 //!
-//! #### Tuple
+//! ## Tuple
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let option = option! {
 //!   let (x, y) <- Some((1, 2));
 //!   (y, x)
 //! };
 //!
 //! assert_eq!(option, Some((2, 1)));
+//! # }
 //! ```
 //!
-//! #### Struct
+//! ## Struct
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! struct Struct { x: usize };
 //!
 //! let option = option! {
@@ -251,25 +298,33 @@
 //! };
 //!
 //! assert_eq!(option, Some(1));
+//! # }
 //! ```
 //!
-//! #### Ignore
+//! ## Ignore
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let option = option! {
 //!   let _ <- Some(1);
 //! };
+//! # }
 //! ```
 //!
-//! #### ... And So On
-//!
-//! ### 4. If-Guard
+//! ## 4. If-Guard
 //!
 //! If-Guard is specific for `iter!` which translates condition into `filter()`.
 //!
 //! It wraps the following code into a block and call `filter()` on it.
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let iter = iter! {
 //!   let x <- 0..4;
 //!   let y <- 2..6;
@@ -281,14 +336,19 @@
 //! };
 //!
 //! let expected = vec![(2, 2), (3, 3)];
-//! assert!(expected, iter.collect::<Vec<_>>());
+//! assert_eq!(expected, iter.collect::<Vec<_>>());
+//! # }
 //! ```
 //!
-//! ### 5. Statement & Block
+//! ## 5. Statement & Block
 //!
 //! Statements and blocks are also supported.
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! // statement
 //! let iter = iter! {
 //!   let start = 5;
@@ -301,8 +361,13 @@
 //! };
 //! let expected = 5..15;
 //! assert!(iter.eq(expected.into_iter()));
+//! # }
 //! ```
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let iter = iter! {
 //!     let mut a <- 0..5;
 //!
@@ -324,9 +389,10 @@
 //! };
 //! let expected = vec![(0, 1), (2, 2), (4, 3), (6, 4), (8, 5)];
 //! assert!(iter.eq(expected.into_iter()));
+//! # }
 //! ```
 //!
-//! ### Array
+//! # Array
 //!
 //! `Array` in rust behaves differently from other collections. It only iterates its
 //! content by reference.
@@ -335,7 +401,11 @@
 //! And since one can't move any value out of an `array`, array should be placed
 //! outside the macro to satisfy lifetime.
 //!
-//! ```rust,ignore
+//! ```
+//! # #[macro_use]
+//! # extern crate comp;
+//! #
+//! # fn main() {
 //! let array = [0, 1, 2, 3];
 //! let iter = iter! {
 //!     let x <- array;
@@ -344,17 +414,18 @@
 //! };
 //! let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 2),
 //!                     (2, 3), (3, 3)];
-//! assert!(expected, iter.collect::<Vec<_>>());
+//! assert_eq!(expected, iter.collect::<Vec<_>>());
+//! # }
 //! ```
 //!
-//! ## Contribution
+//! # Contribution
 //!
 //! All kinds of contribution are welcome.
 //!
 //! - **Issue.** Feel free to open an issue when you find typos, bugs, or have any question.
 //! - **Pull requests**. Better implementation, more tests, more documents and typo fixes are all welcome.
 //!
-//! ## License
+//! # License
 //!
 //! Licensed under MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 
@@ -363,6 +434,8 @@
 /// See the module-level documentation for more details.
 #[macro_export]
 macro_rules! option {
+    (@as_pat $p: pat) => ($p);
+
     () => {
         Some(())
     };
@@ -370,7 +443,7 @@ macro_rules! option {
     (
         let mut $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | mut $p | { option! { $( $t )* } } )
+        $e.and_then(move | option! (@as_pat mut $p) | { option! { $( $t )* } } )
     );
 
     (
@@ -382,19 +455,19 @@ macro_rules! option {
     (
         let $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p | { option! { $( $t )* } } )
+        $e.and_then(move | option! (@as_pat $p) | { option! { $( $t )* } } )
     );
 
     (
         let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p ( $( $para )* ) | { option! { $( $t )* } } )
+        $e.and_then(move | option! (@as_pat $p ( $( $para )* ) ) | { option! { $( $t )* } } )
     );
 
     (
         let $p: tt { $( $para: tt )* } <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p { $( $para )* } | { option! { $( $t )* } } )
+        $e.and_then(move | option! (@as_pat $p { $( $para )* } ) | { option! { $( $t )* } } )
     );
 
     (
@@ -433,6 +506,8 @@ macro_rules! option {
 /// See the module-level documentation for more details.
 #[macro_export]
 macro_rules! result {
+    (@as_pat $p: pat) => ($p);
+
     () => {
         Ok(())
     };
@@ -440,7 +515,7 @@ macro_rules! result {
     (
         let mut $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | mut $p | { result! { $( $t )* } } )
+        $e.and_then(move | result! (@as_pat mut $p) | { result! { $( $t )* } } )
     );
 
     (
@@ -452,19 +527,19 @@ macro_rules! result {
     (
         let $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p | { result! { $( $t )* } } )
+        $e.and_then(move | result! (@as_pat $p) | { result! { $( $t )* } } )
     );
 
     (
         let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p ( $( $para )* ) | { result! { $( $t )* } } )
+        $e.and_then(move | result! (@as_pat $p ( $( $para )* ) )  | { result! { $( $t )* } } )
     );
 
     (
         let $p: tt { $( $para: tt )* } <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.and_then(move | $p { $( $para )* } | { result! { $( $t )* } } )
+        $e.and_then(move | result! (@as_pat $p { $( $para )* } ) | { result! { $( $t )* } } )
     );
 
     (
@@ -503,6 +578,8 @@ macro_rules! result {
 /// See the module-level documentation for more details.
 #[macro_export]
 macro_rules! iter {
+    (@as_pat $p: pat) => ($p);
+
     () => {
         Some(())
     };
@@ -510,7 +587,7 @@ macro_rules! iter {
     (
         let mut $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.into_iter().flat_map(move | mut $p | { iter! { $( $t )* } } )
+        $e.into_iter().flat_map(move | iter! (@as_pat mut $p) | { iter! { $( $t )* } } )
     );
 
     (
@@ -522,19 +599,19 @@ macro_rules! iter {
     (
         let $p: tt <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.into_iter().flat_map(move | $p | { iter! { $( $t )* } } )
+        $e.into_iter().flat_map(move | iter! (@as_pat $p) | { iter! { $( $t )* } } )
     );
 
     (
         let $p: tt ( $( $para: tt )* ) <- $e: expr ; $( $t: tt )*
     ) => (
-        $e.into_iter().flat_map(move | $p ( $( $para )* ) | { iter! { $( $t )* } } )
+        $e.into_iter().flat_map(move | iter! (@as_pat $p ( $( $para )* ) ) | { iter! { $( $t )* } } )
     );
 
     (
         let $p: tt { $( $para: tt )* } <- $e: expr; $( $t: tt )*
     ) => (
-        $e.into_iter().flat_map(move | $p { $( $para )* } | { iter! { $( $t )* } } )
+        $e.into_iter().flat_map(move | iter! (@as_pat $p { $( $para )* } ) | { iter! { $( $t )* } } )
     );
 
     (
@@ -571,7 +648,7 @@ macro_rules! iter {
         $b: block ; $( $t: tt )*
     ) => (
         $b ; iter! { $( $t )* }
-    );
+    );    
 }
 
 #[cfg(test)]
