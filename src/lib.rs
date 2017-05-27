@@ -11,7 +11,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! comp = "0.1"
+//! comp = "*"
 //! ```
 //!
 //! Next, add this to your crate root:

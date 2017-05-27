@@ -17,7 +17,7 @@ First, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-comp = "0.1"
+comp = "*"
 ```
 
 Next, add this to your crate root:
