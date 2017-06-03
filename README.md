@@ -51,28 +51,30 @@ for x in iter {
 // Print (0, 'a') (0, 'b') (1, 'a') (1, 'b')
 ```
 
-You can also have Python like generator expressions:
+It can be written like generator expressions in python:
 
-```Python
-# Generator expression in Python:
-
+```python
+# Pyton
 values = [6, 2, 9, 4, -1, 33, 87, 23]
 result = (x*x for x in values if x < 10)
 ```
 
-```Rust
-// "Generator" expression in Rust (also in just one line):
+or in scala
 
+```scala
+// Scala
+val values = Array(6, 2, 9, 4, -1, 33, 87, 23)
+val result = for(x <- values if x < 10) yield x*x
+```
+
+in Rust
+
+```rust
+// comp-rs
+// The result is of type FlatMap and also lazy, like Python's generator expressions.
 let values = vec![6, 2, 9, 4, -1, 33, 87, 23];
 let result = iter!{let x <- values; if x < 10; x*x};
 ```
-
-Note that the order is reversed:
-- first let binding
-- then the guard
-- and the result expression as last item
-
-The result is of type FlatMap and also lazy, like Pythons generator expressions.
 
 
 ### Option
