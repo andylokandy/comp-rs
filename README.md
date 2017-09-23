@@ -54,7 +54,7 @@ for x in iter {
 It can be written like generator expressions in python:
 
 ```python
-# Pyton
+# Python
 values = [6, 2, 9, 4, -1, 33, 87, 23]
 result = (x*x for x in values if x < 10)
 ```
