@@ -2,7 +2,7 @@
 
 //! Pure-macro Do notation and List-comprehension for Option, Result and Iterator.
 //!
-//! It provides syntax extensions to easily combind wrapper type (`Option`, `Result` and `Iterator`), 
+//! It provides syntax extensions to easily combind wrapper type (`Option`, `Result` and `Iterator`),
 //! which seems like `for-comprehension` in scala or `Do notation` in haskell.
 //!
 //! # Usage
@@ -648,7 +648,7 @@ macro_rules! iter {
         $b: block ; $( $t: tt )*
     ) => (
         $b ; iter! { $( $t )* }
-    );    
+    );
 }
 
 #[cfg(test)]
@@ -721,8 +721,18 @@ mod tests {
             let y <- x..4;
             (x, y)
         };
-        let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 2),
-                            (2, 3), (3, 3)];
+        let expected = vec![
+            (0, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (2, 2),
+            (2, 3),
+            (3, 3),
+        ];
         assert!(iter.eq(expected.into_iter()));
     }
 
@@ -734,8 +744,18 @@ mod tests {
             let y <- *x..4;
             (*x, y)
         };
-        let expected = vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 1), (1, 2), (1, 3), (2, 2),
-                            (2, 3), (3, 3)];
+        let expected = vec![
+            (0, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (1, 1),
+            (1, 2),
+            (1, 3),
+            (2, 2),
+            (2, 3),
+            (3, 3),
+        ];
         assert!(iter.eq(expected.into_iter()));
     }
 
